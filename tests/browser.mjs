@@ -25,6 +25,14 @@ try{
   const data=readFileSync("data.json"),visual=readFileSync("visual.json");
   await page.route("https://api.github.com/**",async route=>{
     const u=new URL(route.request().url()),p=u.pathname,method=route.request().method();
+    if(method==="OPTIONS"){
+      await route.fulfill({status:204,headers:{
+        "Access-Control-Allow-Origin":"*",
+        "Access-Control-Allow-Methods":"GET,POST,PATCH,OPTIONS",
+        "Access-Control-Allow-Headers":"Authorization,Content-Type,Accept,X-GitHub-Api-Version"
+      }});
+      return;
+    }
     let response={};
     if(p==="/user")response={login:"alansri08"};
     else if(p==="/repos/alansri08/alankrita-portfolio")response={permissions:{push:true}};
