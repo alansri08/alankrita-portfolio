@@ -124,6 +124,9 @@
           <label>Width (px)<input data-key="w" type="number" min="0" step="1"></label><label>Height (px)<input data-key="h" type="number" min="0" step="1"></label>
         </div>
       </div>
+      <button id="replace-image" hidden style="width:100%;margin-top:12px">Replace selected image (Canva export or upload)</button>
+      <input id="replace-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <a id="open-canva-edit" target="_blank" rel="noopener noreferrer" hidden style="display:block;margin-top:10px">Open original design in Canva ↗</a>
       <h3>Appearance</h3>
       <div class="two-col">
         <label>Font size (px)<input data-key="fontSize" type="number" min="0" max="300"></label>
