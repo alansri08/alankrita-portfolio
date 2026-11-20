@@ -277,7 +277,7 @@ async function addImage(file,replacing=false){
   if(!/^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(file.type)){flash("Use PNG, JPG, WebP, GIF, or SVG.",true);return;}
   try{
     let source;
-    if(file.type==="image/svg+xml" || (file.type==="image/gif"&&file.size<1100000)) {
+    if(file.type==="image/gif"&&file.size<1100000) {
       if(file.size>2000000)throw Error("SVG or animated GIF must be under 2 MB.");
       source=await readFileAsData(file);
     }else{
@@ -416,7 +416,7 @@ function onPropertyInput(e){
   const obj=item?(["x","y","w","h"].includes(key)?itemDims(item,true):item):placement(true);
   if(!obj)return;
   checkpoint();
-  if(["x","y","w","h","dx","dy","fontSize","rotate","opacity","radius"].includes(key))obj[key]=input.value===""?undefined:+input.value;
+  if(["x","y","w","h","dx","dy","fontSize","rotate","opacity","radius","z"].includes(key))obj[key]=input.value===""?undefined:+input.value;
   else obj[key]=input.value;
   updatePreview();refreshLayers();markDirty();
 }
@@ -441,6 +441,19 @@ function duplicate(){
   next.z=Math.max(0,...visual.items.map(x=>+x.z||0))+1;
   for(const dev of ["desktop","mobile"]){if(next[dev]){next[dev].x+=3;next[dev].y+=3;}}
   visual.items.push(next);select("item",next.id);updatePreview();refreshLayers();markDirty();
+}
+function moveLayer(front){
+  if(!selection)return;
+  checkpoint();
+  if(selection.kind==="item"){
+    const it=getItem(),nums=visual.items.map(x=>+x.z||0);
+    it.z=front?Math.max(0,...nums)+1:Math.min(0,...nums)-1;
+  }else{
+    const nums=Object.values(visual.placements?.[device]||{}).map(x=>+x.z||0);
+    const p=placement(true);
+    p.z=front?Math.max(28,...nums)+1:Math.min(0,...nums)-1;
+  }
+  updatePreview();refreshInspector();markDirty();
 }
 function remove(){
   if(!selection)return;
@@ -577,6 +590,8 @@ function initialize(){
   $("#content-value").addEventListener("input",e=>{checkpoint();setContent(e.target.value);updatePreview();markDirty();});
   $("#inspector").addEventListener("input",onPropertyInput);
   $("#duplicate").addEventListener("click",duplicate);
+  $("#bring-front").addEventListener("click",()=>moveLayer(true));
+  $("#send-back").addEventListener("click",()=>moveLayer(false));
   $("#remove").addEventListener("click",remove);
   $("#apply-font-group").addEventListener("click",()=>{
     if(selection?.kind!=="native")return;
