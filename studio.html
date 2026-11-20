@@ -28,6 +28,9 @@
     <button id="undo" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
     <button id="redo" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>
     <button id="save-draft">Save draft</button>
+    <button id="export-draft" title="Download a portable backup">Export draft</button>
+    <button id="import-draft" title="Restore a saved draft JSON file">Import draft</button>
+    <input type="file" id="import-draft-file" accept="application/json,.json" hidden>
     <button id="restore">Reload published</button>
     <button id="history" title="Select an older GitHub version for preview and republication">Version history</button>
     <button id="publish" class="primary">Publish to website ↗</button>
@@ -57,6 +60,10 @@
     </section>
     <section class="tabview" id="tab-content" hidden>
       <h2>Edit website copy</h2>
+      <div class="insert-grid" style="margin-top:0">
+        <button id="project-add" style="min-height:45px">+ Add project</button>
+        <button id="project-remove" style="min-height:45px">Remove project</button>
+      </div>
       <label for="content-key">Section</label>
       <select id="content-key">
         <option value="intro">Homepage introduction</option>
