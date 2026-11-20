@@ -97,7 +97,7 @@ async function loadFromGithub(restore=true){
       }
     }catch{localStorage.removeItem(KEY);}
   }
-  updatePreview();updateInspector();loadContentInput();refreshLayers();labelStatus("Connected · "+headSha.slice(0,7));
+  refreshProjectOptions();updatePreview();updateInspector();loadContentInput();refreshLayers();labelStatus("Connected · "+headSha.slice(0,7));
 }
 async function connect(){
   const value=$("#token").value.trim();
@@ -303,6 +303,59 @@ function showTab(tab){
   $$(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
   $$(".tabview").forEach(s=>s.hidden=s.id!=="tab-"+tab);
 }
+function refreshProjectOptions(){
+  const select=$("#content-key"),prior=select.value;
+  [...select.querySelectorAll('option[value^="projects."]')].forEach(x=>x.remove());
+  for(const [i,p] of (data.projects||[]).entries()){
+    for(const [field,label] of [["title","Title"],["metric","Metric"],["desc","Description"],
+      ["glyph","Card symbol"],["link","Project URL"],["video","Video URL"]]){
+      const opt=document.createElement("option");
+      opt.value="projects."+i+"."+field;
+      opt.textContent="Project "+(i+1)+" · "+label+(p.title?" ("+p.title.slice(0,18)+")":"");
+      select.appendChild(opt);
+    }
+  }
+  select.value=[...select.options].some(x=>x.value===prior)?prior:"intro";
+}
+function addProject(){
+  checkpoint();
+  data.projects ||= [];
+  data.projects.push({title:"New project",metric:"Your key result",desc:"What you built and why it matters",
+    glyph:"NEW",video:"",link:"https://github.com/alansri08"});
+  refreshProjectOptions();
+  $("#content-key").value="projects."+(data.projects.length-1)+".title";
+  loadContentInput();updatePreview();markDirty();
+  flash("Project added. Edit its fields and publish when ready.");
+}
+function removeProject(){
+  const m=$("#content-key").value.match(/^projects\.(\d+)\./);
+  if(!m){flash("Select one of the project fields to remove that project.",true);return;}
+  if(!confirm("Remove project "+(+m[1]+1)+" from the website draft?"))return;
+  checkpoint();data.projects.splice(+m[1],1);
+  refreshProjectOptions();loadContentInput();updatePreview();markDirty();
+}
+function exportDraft(){
+  const blob=new Blob([JSON.stringify({data,visual,headSha,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"});
+  const link=document.createElement("a"),url=URL.createObjectURL(blob);
+  link.href=url;link.download="alankrita-portfolio-draft.json";link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  flash("Draft exported. Keep this backup private until you publish.");
+}
+async function importDraft(file){
+  if(!file)return;
+  try{
+    const imported=JSON.parse(await file.text());
+    if(!imported.data || !Array.isArray(imported.data.projects)||!imported.visual||!Array.isArray(imported.visual.items))
+      throw Error("Not a valid Visual Studio draft.");
+    checkpoint();data=imported.data;visual=imported.visual;
+    visual.placements ||= {desktop:{},mobile:{}};
+    if(imported.headSha)headSha=imported.headSha;
+    selection=null;refreshProjectOptions();updatePreview();refreshInspector();refreshLayers();loadContentInput();markDirty();
+    const current=await getHead();
+    if(current!==headSha)flash("Imported draft refers to an older published version. Publishing is blocked to protect newer changes.",true);
+    else flash("Draft imported. Review it before publishing.");
+  }catch(e){flash("Import failed: "+e.message,true);}
+}
 function contentPath(){return $("#content-key").value.split(".");}
 function getContent(){
   let obj=data;for(const k of contentPath())obj=obj?.[k];
@@ -484,7 +537,7 @@ async function showHistory(){
     ]);
     checkpoint();
     data=JSON.parse(decode64(pastData.content));visual=JSON.parse(decode64(pastVisual.content));
-    selection=null;updatePreview();updateInspector();refreshLayers();loadContentInput();markDirty();
+    selection=null;refreshProjectOptions();updatePreview();updateInspector();refreshLayers();loadContentInput();markDirty();
     flash("Old version loaded as a DRAFT. Review the preview, then click Publish to restore it.");
   }catch(e){flash("History: "+e.message,true);}
 }
@@ -495,6 +548,11 @@ function initialize(){
   $("#undo").addEventListener("click",doUndo);$("#redo").addEventListener("click",doRedo);
   $("#publish").addEventListener("click",publish);
   $("#save-draft").addEventListener("click",()=>{saveDraft();flash("Draft saved in this browser. It is not public.");});
+  $("#export-draft").addEventListener("click",exportDraft);
+  $("#import-draft").addEventListener("click",()=>$("#import-draft-file").click());
+  $("#import-draft-file").addEventListener("change",async e=>{
+    await importDraft(e.target.files?.[0]);e.target.value="";
+  });
   $("#history").addEventListener("click",showHistory);
   $("#restore").addEventListener("click",async()=>{if(!confirm("Discard the current draft and reload the published website?"))return;
     localStorage.removeItem(KEY);try{await loadFromGithub(false);flash("Published version loaded.");}catch(e){flash(e.message,true);}
@@ -513,6 +571,8 @@ function initialize(){
       insert("canva",{src:url,alt:"Canva portfolio graphic",bg:"",desktop:{x:30,y:25,w:38,h:37}});
     }catch{flash("Please provide a valid canva.com/design/... link.",true);}
   });
+  $("#project-add").addEventListener("click",addProject);
+  $("#project-remove").addEventListener("click",removeProject);
   $("#content-key").addEventListener("change",loadContentInput);
   $("#content-value").addEventListener("input",e=>{checkpoint();setContent(e.target.value);updatePreview();markDirty();});
   $("#inspector").addEventListener("input",onPropertyInput);
