@@ -1,0 +1,38 @@
+media:
+  input: assets
+  output: /alankrita-portfolio/assets
+content:
+  - name: portfolio
+    label: Portfolio content
+    type: file
+    path: data.json
+    format: json
+    fields:
+      - { name: intro, label: Homepage introduction, type: text }
+      - { name: story, label: My story, type: text }
+      - { name: how, label: How I work, type: text }
+      - { name: about, label: About me, type: text }
+      - { name: email, label: Email, type: string }
+      - { name: linkedin, label: LinkedIn URL, type: string }
+      - { name: github, label: GitHub URL, type: string }
+      - { name: storyVideo, label: Story video URL, type: string }
+      - { name: headingFont, label: Heading font, type: string }
+      - { name: bodyFont, label: Body font, type: string }
+      - { name: accentFont, label: Accent font, type: string }
+      - { name: headingColor, label: Heading color, type: string }
+      - { name: bodyColor, label: Text color, type: string }
+      - { name: accentColor, label: Accent color, type: string }
+      - name: projects
+        label: Featured projects
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - { name: title, label: Project title, type: string, required: true }
+          - { name: metric, label: Main result, type: string }
+          - { name: desc, label: Project description, type: text }
+          - { name: glyph, label: Card symbol, type: string }
+          - { name: video, label: Video URL, type: string }
+          - { name: link, label: GitHub or project URL, type: string }
