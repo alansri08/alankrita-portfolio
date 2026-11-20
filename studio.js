@@ -310,6 +310,7 @@ function updateInspector(){
   const item=selection.kind==="item"?getItem():null;
   $("#selected-name").textContent=item?(item.text?.slice(0,40)||item.alt||item.type):"Website element";
   $("#item-properties").hidden=!item;$("#native-properties").hidden=!!item;
+  $("#apply-font-group").hidden=!!item;
   $("#native-text-row").hidden=!!item || !el || el.children.length>0;
   if(!item && el && el.children.length===0) {
     $("#native-text").value=Object.prototype.hasOwnProperty.call(visual.textOverrides||{},selection.id) ?
@@ -455,8 +456,8 @@ async function publish(){
 async function showHistory(){
   try{
     const commits=await api(repoApi("/commits?per_page=15"));
-    const options=commits.map((c,i)=>(i+1)+". "+c.sha.slice(0,7)+" · "+String(c.commit?.message||"Update").split("\\n")[0].slice(0,65)).join("\\n");
-    const chosen=prompt("Select an earlier version to preview (enter its number). Changes are NOT published until you click Publish.\\n\\n"+options);
+    const options=commits.map((c,i)=>(i+1)+". "+c.sha.slice(0,7)+" · "+String(c.commit?.message||"Update").split("\n")[0].slice(0,65)).join("\n");
+    const chosen=prompt("Select an earlier version to preview (enter its number). Changes are NOT published until you click Publish.\n\n"+options);
     if(!chosen)return;
     const n=Number(chosen);
     if(!Number.isInteger(n)||n<1||n>commits.length)throw Error("Invalid version number.");
@@ -499,6 +500,25 @@ function initialize(){
   $("#inspector").addEventListener("input",onPropertyInput);
   $("#duplicate").addEventListener("click",duplicate);
   $("#remove").addEventListener("click",remove);
+  $("#apply-font-group").addEventListener("click",()=>{
+    if(selection?.kind!=="native")return;
+    const chosen=getElement(),p=placement();
+    if(!chosen)return;
+    const computed=frame.contentWindow.getComputedStyle(chosen);
+    const size=+p.fontSize||parseFloat(computed.fontSize);
+    if(!(size>0))return;
+    const cls=String(chosen.className||"");
+    const peers=(view()?.targets()||[]).filter(el=>el.tagName===chosen.tagName && String(el.className||"")===cls);
+    checkpoint();
+    visual.placements[device] ||= {};
+    for(const el of peers){
+      const id=view().ident(el);
+      visual.placements[device][id] ||= copy(visual.placements.desktop?.[id]||{dx:0,dy:0});
+      visual.placements[device][id].fontSize=size;
+    }
+    updatePreview();refreshInspector();markDirty();
+    flash("Applied "+size+"px to "+peers.length+" matching elements.");
+  });
   $("#native-text").addEventListener("input",e=>{
     if(selection?.kind!=="native")return;
     checkpoint();visual.textOverrides ||= {};
