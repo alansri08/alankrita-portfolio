@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>Alankrita · Private Portfolio Studio</title>
+<link rel="stylesheet" href="./studio.css">
+</head>
+<body>
+<section id="gate" class="gate">
+  <div class="login-card">
+    <p class="eyebrow">ALANKRITA · DESIGN STUDIO</p>
+    <h1>Your portfolio, your canvas.</h1>
+    <p>Sign in with a <strong>fine-grained GitHub token</strong> to edit, preview, and publish. Only the repository owner's token can unlock this studio. Your token stays in this tab and is never saved.</p>
+    <label for="token">GitHub token (Contents: read/write, this repository only)</label>
+    <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+    <button id="connect" class="primary">Unlock studio</button>
+    <p class="error" id="gate-error" role="alert"></p>
+    <p class="fine">Create a token in <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">GitHub → Personal access tokens</a>. Select owner <b>alansri08</b>, repository <b>alankrita-portfolio</b>, and <b>Contents → Read and write</b>. Never paste your token into chat or Canva.</p>
+    <p class="fine">This login protects publishing rights, not the studio page's source code. The public website has no editing controls.</p>
+  </div>
+</section>
+<div id="app" hidden>
+<header class="appbar">
+  <div class="brand"><b>Alankrita<span>.</span></b><small>VISUAL STUDIO</small></div>
+  <div class="app-actions">
+    <span class="pill" id="status">Connected</span>
+    <button id="undo" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
+    <button id="redo" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>
+    <button id="save-draft">Save draft</button>
+    <button id="export-draft" title="Download a portable backup">Export draft</button>
+    <button id="import-draft" title="Restore a saved draft JSON file">Import draft</button>
+    <input type="file" id="import-draft-file" accept="application/json,.json" hidden>
+    <button id="restore">Reload published</button>
+    <button id="history" title="Select an older GitHub version for preview and republication">Version history</button>
+    <button id="publish" class="primary">Publish to website ↗</button>
+    <button id="logout" title="Forget access token">Lock</button>
+  </div>
+</header>
+<div class="workspace">
+  <aside class="sidebar left">
+    <div class="tabs"><button class="tab active" data-tab="add">Add</button><button class="tab" data-tab="content">Content</button><button class="tab" data-tab="layers">Layers</button></div>
+    <section class="tabview" id="tab-add">
+      <h2>Add anything</h2>
+      <p class="muted">Drag and resize it anywhere. Use the right panel for precise styling.</p>
+      <div class="insert-grid">
+        <button id="add-text"><span>✎</span>Text</button>
+        <button id="add-shape"><span>▧</span>Shape</button>
+        <button id="add-image"><span>▧</span>Image / graphic</button>
+        <button id="add-canva"><span>◈</span>Live Canva embed</button>
+      </div>
+      <input id="upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <div class="help">
+        <b>Canva workflow</b>
+        <p>Create or revise a design in Canva, export as PNG/WebP/SVG, then add it here as an image. Press Publish to include it in your live portfolio.</p>
+        <p>Alternatively, add a <em>live Canva embed</em> for automatic Canva updates. Live embeds bypass review and GitHub rollback.</p>
+        <a href="https://www.canva.com/d/AewOY9n5nY1F8QW" target="_blank" rel="noopener noreferrer">Open your existing Canva portfolio copy ↗</a>
+        <p class="muted">Imported copies may contain flattened elements. Use Canva for graphics, then replace and publish here.</p>
+        <a href="https://www.canva.com/" target="_blank" rel="noopener noreferrer">Open Canva home ↗</a>
+      </div>
+      <div class="help"><b>Keyboard shortcuts</b><p>Drag to move · Corner handle to resize · Delete to remove · Ctrl/Cmd+D to duplicate · Arrow keys to nudge · Ctrl/Cmd+Z to undo</p></div>
+    </section>
+    <section class="tabview" id="tab-content" hidden>
+      <h2>Edit website copy</h2>
+      <div class="insert-grid" style="margin-top:0">
+        <button id="project-add" style="min-height:45px">+ Add project</button>
+        <button id="project-remove" style="min-height:45px">Remove project</button>
+      </div>
+      <label for="content-key">Section</label>
+      <select id="content-key">
+        <option value="intro">Homepage introduction</option>
+        <option value="story">My story</option>
+        <option value="how">How I work</option>
+        <option value="about">About me</option>
+        <option value="email">Email</option>
+        <option value="linkedin">LinkedIn URL</option>
+        <option value="github">GitHub URL</option>
+        <option value="storyVideo">Story video</option>
+        <option value="projects.0.title">Project 1 — title</option>
+        <option value="projects.0.metric">Project 1 — main result</option>
+        <option value="projects.0.desc">Project 1 — description</option>
+        <option value="projects.0.link">Project 1 — URL</option>
+        <option value="projects.1.title">Project 2 — title</option>
+        <option value="projects.1.metric">Project 2 — main result</option>
+        <option value="projects.1.desc">Project 2 — description</option>
+        <option value="projects.1.link">Project 2 — URL</option>
+        <option value="projects.2.title">Project 3 — title</option>
+        <option value="projects.2.metric">Project 3 — main result</option>
+        <option value="projects.2.desc">Project 3 — description</option>
+        <option value="projects.2.link">Project 3 — URL</option>
+      </select>
+      <label for="content-value">Text or URL</label>
+      <textarea id="content-value" rows="8"></textarea>
+      <p class="muted">These edits are saved with your visual layout when you publish. For bulk editing and adding projects, use <a href="https://app.pagescms.org/" target="_blank" rel="noopener noreferrer">Pages CMS ↗</a>.</p>
+    </section>
+    <section class="tabview" id="tab-layers" hidden>
+      <h2>Your layers</h2><p class="muted">Select an item to customize or duplicate it.</p><div id="layers-list"></div>
+    </section>
+  </aside>
+  <main class="canvas-panel">
+    <div class="canvas-toolbar">
+      <div class="device-toggle"><button id="desktop" class="active">Desktop</button><button id="mobile">Mobile</button></div>
+      <span class="muted" id="canvas-note">Select anything on the page to move or resize it.</span>
+      <div class="zoom-note">Click a text item to style it; use Content to edit website copy.</div>
+    </div>
+    <div id="stage-scroller">
+      <div id="frame-wrap">
+        <iframe id="site-frame" title="Live portfolio draft preview" src="./index.html?studio-preview=1"></iframe>
+        <div id="selection" hidden><span class="resize-handle" id="resize-handle" title="Drag to resize"></span><div id="selection-label"></div></div>
+      </div>
+    </div>
+  </main>
+  <aside class="sidebar right">
+    <h2>Inspector</h2><p id="inspector-empty" class="muted">Select text, a graphic, an image, a section, or a card in the preview.</p>
+    <div id="inspector" hidden>
+      <div class="sel-title"><strong id="selected-name">Item</strong><div><button id="duplicate" title="Duplicate item">Duplicate</button><button id="remove" title="Delete/reset item">Remove</button></div></div>
+      <div id="item-properties">
+        <label class="prop-row" data-prop="text">Text<textarea data-key="text" rows="3"></textarea></label>
+        <label class="prop-row" data-prop="src">Image or Canva URL<input data-key="src" type="url" placeholder="https://"></label>
+        <label class="prop-row" data-prop="editUrl">Canva design edit URL<input data-key="editUrl" type="url" placeholder="https://www.canva.com/design/…"></label>
+        <label class="prop-row" data-prop="alt">Image description<input data-key="alt" type="text"></label>
+        <label class="prop-row" data-prop="href">Link when clicked<input data-key="href" type="url" placeholder="https://"></label>
+        <div class="two-col">
+          <label>X (%)<input data-key="x" type="number" step=".1"></label><label>Y (%)<input data-key="y" type="number" step=".1"></label>
+          <label>Width (%)<input data-key="w" type="number" min=".5" step=".1"></label><label>Height (%)<input data-key="h" type="number" min=".5" step=".1"></label>
+        </div>
+      </div>
+      <div id="native-properties" hidden>
+        <p class="muted">Move and resize this website element. Text edits here override the original words.</p>
+        <label id="native-text-row">Edit selected text<textarea id="native-text" rows="3" placeholder="Select a single text element"></textarea></label>
+        <div class="two-col">
+          <label>Move X (px)<input data-key="dx" type="number" step="1"></label><label>Move Y (px)<input data-key="dy" type="number" step="1"></label>
+          <label>Width (px)<input data-key="w" type="number" min="0" step="1"></label><label>Height (px)<input data-key="h" type="number" min="0" step="1"></label>
+        </div>
+      </div>
+      <div class="insert-grid" id="layer-controls" style="margin-top:12px">
+        <button id="bring-front" style="min-height:38px">Bring to front</button>
+        <button id="send-back" style="min-height:38px">Send behind</button>
+      </div>
+      <button id="replace-image" hidden style="width:100%;margin-top:12px">Replace selected image (Canva export or upload)</button>
+      <input id="replace-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <a id="open-canva-edit" target="_blank" rel="noopener noreferrer" hidden style="display:block;margin-top:10px">Open original design in Canva ↗</a>
+      <h3>Appearance</h3>
+      <div class="two-col">
+        <label>Font size (px)<input data-key="fontSize" type="number" min="0" max="300"></label>
+        <label>Rotation (°)<input data-key="rotate" type="number" min="-360" max="360"></label>
+        <label>Layer order<input data-key="z" type="number" step="1"></label>
+        <label>Text color<input data-key="color" type="color" value="#203e31"></label>
+        <label>Background<input data-key="bg" type="color" value="#ffffff"></label>
+        <label>Opacity (0–1)<input data-key="opacity" type="number" step=".1" min="0" max="1"></label>
+        <label>Corner radius (px)<input data-key="radius" type="number" min="0" max="300"></label>
+      </div>
+      <label class="prop-row" data-prop="fontFamily">Font family<input data-key="fontFamily" type="text" placeholder="Space Grotesk"></label>
+      <label class="prop-row" data-prop="align">Text alignment<select data-key="align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+      <button id="apply-font-group" style="width:100%;margin-top:12px" title="Apply the selected font size to similar elements in this device layout">Apply font size to same category</button>
+      <div class="help"><b>Responsive layouts</b><p>Desktop and mobile positions are independent. Choose Mobile above to place elements for phones.</p></div>
+    </div>
+  </aside>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="./studio.js"></script>
+</body>
+</html>

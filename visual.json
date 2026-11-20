@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "items": [],
+  "placements": {
+    "desktop": {},
+    "mobile": {}
+  },
+  "notes": "Canvas additions and drag/resize positions. Edit visually in studio.html; publish writes this file."
+}
