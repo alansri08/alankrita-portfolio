@@ -29,6 +29,7 @@
     <button id="redo" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>
     <button id="save-draft">Save draft</button>
     <button id="restore">Reload published</button>
+    <button id="history" title="Select an older GitHub version for preview and republication">Version history</button>
     <button id="publish" class="primary">Publish to website ↗</button>
     <button id="logout" title="Forget access token">Lock</button>
   </div>
@@ -116,7 +117,8 @@
         </div>
       </div>
       <div id="native-properties" hidden>
-        <p class="muted">Repositioning this existing element is saved separately from the default layout.</p>
+        <p class="muted">Move and resize this website element. Text edits here override the original words.</p>
+        <label id="native-text-row">Edit selected text<textarea id="native-text" rows="3" placeholder="Select a single text element"></textarea></label>
         <div class="two-col">
           <label>Move X (px)<input data-key="dx" type="number" step="1"></label><label>Move Y (px)<input data-key="dy" type="number" step="1"></label>
           <label>Width (px)<input data-key="w" type="number" min="0" step="1"></label><label>Height (px)<input data-key="h" type="number" min="0" step="1"></label>
