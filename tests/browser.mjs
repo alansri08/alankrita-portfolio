@@ -69,6 +69,27 @@ try{
   await page.waitForFunction(()=>document.querySelector("#site-frame").contentWindow.PortfolioVisual);
   await page.locator("#add-text").click();
   assert.equal(await page.frameLocator("#site-frame").locator(".visual-item[data-kind='text']").count(),1,"Text insert failed");
+  const getLayout=()=>page.evaluate(()=>document.querySelector("#site-frame").contentWindow.PortfolioVisual.getState().items[0].desktop);
+  const beforeDrag=await getLayout();
+  const itemBox=await page.frameLocator("#site-frame").locator(".visual-item[data-kind='text']").boundingBox();
+  assert.ok(itemBox,"Added item must be visible for dragging");
+  await page.mouse.move(itemBox.x+itemBox.width/2,itemBox.y+itemBox.height/2);
+  await page.mouse.down();
+  await page.mouse.move(itemBox.x+itemBox.width/2+45,itemBox.y+itemBox.height/2+25,{steps:5});
+  await page.mouse.up();
+  const afterDrag=await getLayout();
+  assert.ok(Math.abs(afterDrag.x-beforeDrag.x)>1,"Canvas drag must move the item horizontally");
+  assert.ok(Math.abs(afterDrag.y-beforeDrag.y)>1,"Canvas drag must move the item vertically");
+  const beforeResize=await getLayout();
+  const handle=await page.locator("#resize-handle").boundingBox();
+  assert.ok(handle,"Resize handle must be visible");
+  await page.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x+handle.width/2+35,handle.y+handle.height/2+20,{steps:4});
+  await page.mouse.up();
+  const afterResize=await getLayout();
+  assert.ok(afterResize.w>beforeResize.w,"Corner resize must increase width");
+
   await page.locator('#inspector input[data-key="fontSize"]').fill("35");
   await page.locator("#save-draft").click();
   const draft=await page.evaluate(()=>localStorage.getItem("alankrita-studio-local-draft-v2"));
@@ -85,5 +106,5 @@ try{
   assert.equal(refWrites,1,"Publishing must update main ref exactly once");
   assert.equal(treeWrites,1,"Publishing must create one atomic tree");
   assert.equal(errors.length,0,"Browser JavaScript errors: "+errors.join("; "));
-  console.log("Browser acceptance test passed: login, preview, insert, style, draft, mobile, export, atomic publish.");
+  console.log("Browser acceptance test passed: login, preview, actual drag/resize, style, draft, mobile, export, atomic publish.");
 }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}
