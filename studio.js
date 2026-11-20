@@ -109,6 +109,7 @@ async function connect(){
     $("#token").value="";
     $("#gate").hidden=true;$("#app").hidden=false;
     await loadFromGithub(true);
+    onFrameLoaded();
     flash("Studio unlocked. Your public site is unchanged until Publish.");
   } catch(e){
     token="";
@@ -135,6 +136,8 @@ function onFrameLoaded(){
   if(!token)return;
   updatePreview();
   const doc=frame.contentDocument;
+  if(!doc || doc.__portfolioStudioWired)return;
+  doc.__portfolioStudioWired=true;
   doc.addEventListener("pointerdown",onFrameDown,true);
   doc.addEventListener("pointermove",onFrameMove,true);
   doc.addEventListener("pointerup",endDrag,true);
@@ -466,7 +469,6 @@ function initialize(){
   $("#content-key").addEventListener("change",loadContentInput);
   $("#content-value").addEventListener("input",e=>{checkpoint();setContent(e.target.value);updatePreview();markDirty();});
   $("#inspector").addEventListener("input",onPropertyInput);
-  $("#inspector").addEventListener("change",onPropertyInput);
   $("#duplicate").addEventListener("click",duplicate);
   $("#remove").addEventListener("click",remove);
   $("#resize-handle").addEventListener("pointerdown",startResize);
