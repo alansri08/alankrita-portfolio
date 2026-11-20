@@ -69,15 +69,17 @@
       // Leaf text can be edited visually without destroying nested project card markup.
       if (!el.children.length) {
         const override = state.textOverrides && Object.prototype.hasOwnProperty.call(state.textOverrides,id) ? state.textOverrides[id] : undefined;
-        if (!el.dataset.visualTextApplied || (override !== undefined && el.textContent !== String(override))) {
+        if (!el.dataset.visualTextApplied || el.textContent !== el.dataset.visualLastApplied) {
           el.dataset.visualOriginalText = el.textContent;
         }
         if (override !== undefined) {
           el.textContent = String(override);
           el.dataset.visualTextApplied = "1";
+          el.dataset.visualLastApplied = String(override);
         } else if (el.dataset.visualTextApplied) {
           el.textContent = el.dataset.visualOriginalText ?? el.textContent;
           delete el.dataset.visualTextApplied;
+          delete el.dataset.visualLastApplied;
         }
       }
       const old = el.dataset.visualApplied;
