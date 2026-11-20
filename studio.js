@@ -268,7 +268,7 @@ function insert(type,extra={}){
 function readFileAsData(file){return new Promise((resolve,reject)=>{
   const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file);
 });}
-async function addImage(file){
+async function addImage(file,replacing=false){
   if(!file)return;
   if(!/^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(file.type)){flash("Use PNG, JPG, WebP, GIF, or SVG.",true);return;}
   try{
@@ -284,8 +284,15 @@ async function addImage(file){
       source=c.toDataURL("image/webp",0.83);
       bmp.close?.();
     }
-    insert("image",{src:source,alt:file.name.replace(/\.[^.]+$/,""),bg:"",desktop:{x:35,y:28,w:25,h:25}});
-    flash("Image added. You can move, resize, and publish it.");
+    if(replacing && selection?.kind==="item" && getItem()?.type==="image"){
+      checkpoint();
+      const it=getItem();it.src=source;it.alt=file.name.replace(/\.[^.]+$/,"");
+      updatePreview();refreshInspector();refreshLayers();markDirty();
+      flash("Image replaced. Click Publish when ready.");
+    }else{
+      insert("image",{src:source,alt:file.name.replace(/\.[^.]+$/,""),bg:"",desktop:{x:35,y:28,w:25,h:25}});
+      flash("Image added. You can move, resize, and publish it.");
+    }
   }catch(e){flash("Image error: "+e.message,true);}
 }
 function showTab(tab){
@@ -309,6 +316,11 @@ function updateInspector(){
   if(!has)return;
   const item=selection.kind==="item"?getItem():null;
   $("#selected-name").textContent=item?(item.text?.slice(0,40)||item.alt||item.type):"Website element";
+  $("#replace-image").hidden=!item || item.type!=="image";
+  const editUrl=item?.editUrl||"";
+  const canvaLink=/^https:\/\/(?:www\.)?canva\.com\//i.test(editUrl)?editUrl:"";
+  $("#open-canva-edit").hidden=!canvaLink;
+  if(canvaLink)$("#open-canva-edit").href=canvaLink;
   $("#item-properties").hidden=!item;$("#native-properties").hidden=!!item;
   $("#apply-font-group").hidden=!!item;
   $("#native-text-row").hidden=!!item || !el || el.children.length>0;
@@ -488,6 +500,8 @@ function initialize(){
   $("#add-shape").addEventListener("click",()=>insert("shape"));
   $("#add-image").addEventListener("click",()=>$("#upload").click());
   $("#upload").addEventListener("change",async e=>{await addImage(e.target.files?.[0]);e.target.value="";});
+  $("#replace-image").addEventListener("click",()=>$("#replace-upload").click());
+  $("#replace-upload").addEventListener("change",async e=>{await addImage(e.target.files?.[0],true);e.target.value="";});
   $("#add-canva").addEventListener("click",()=>{
     const url=prompt("Paste your published Canva EMBED link (https://www.canva.com/design/.../view?embed). Changes to this design will show live and bypass GitHub rollback.");
     if(!url)return;
