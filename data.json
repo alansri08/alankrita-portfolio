@@ -1,0 +1,39 @@
+{
+  "intro": "Curious about both how data becomes trustworthy and what it can tell us. I build, question and connect the technical work to business decisions.",
+  "story": "Marketing was my starting point. Curiosity took me deeper into data.",
+  "how": "Clarify → Build → Validate → Analyze → Explain. AI can accelerate the process; I still verify the results.",
+  "about": "UMD Smith · MS Marketing Analytics · Dec 2026",
+  "email": "",
+  "linkedin": "https://www.linkedin.com/",
+  "github": "https://github.com/alansri08",
+  "headingFont": "Fraunces",
+  "bodyFont": "Nunito",
+  "accentFont": "Caveat",
+  "storyVideo": "",
+  "projects": [
+    {
+      "title": "Churn data at scale",
+      "metric": "21M+ records · 80% less preparation",
+      "desc": "Databricks, PySpark and SQL pipeline for subscriber churn analysis.",
+      "glyph": "21M",
+      "video": "",
+      "link": "https://github.com/alansri08/kkbox-churn-prediction"
+    },
+    {
+      "title": "Retention, corrected",
+      "metric": "24% retention understatement found",
+      "desc": "Corrected right-censoring, then investigated a R$261K fulfillment leak.",
+      "glyph": "24%",
+      "video": "",
+      "link": "https://github.com/alansri08/ecommerce-funnel-cohort-analysis"
+    },
+    {
+      "title": "Should this feature launch?",
+      "metric": "−0.82 pp Day-7 retention",
+      "desc": "Detected sample ratio mismatch in a 90K+ user test and recommended holding launch.",
+      "glyph": "A/B",
+      "video": "",
+      "link": "https://github.com/alansri08/mobile-app-growth-experimentation"
+    }
+  ]
+}
