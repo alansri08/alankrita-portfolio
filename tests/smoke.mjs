@@ -1,8 +1,12 @@
 // Source-level smoke tests. Full authenticated publishing needs a browser and GitHub owner approval.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {Script} from "node:vm";
 const file = path => readFileSync(path,"utf8");
 const publicHtml=file("index.html"),studioHtml=file("studio.html"),studio=file("studio.js"),runtime=file("visual-runtime.js");
+const inlineScripts=[...publicHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+assert.ok(inlineScripts.length,"Missing public page JavaScript");
+inlineScripts.forEach((code,i)=>new Script(code,{filename:"index-inline-"+i+".js"}));
 const data=JSON.parse(file("data.json")),visual=JSON.parse(file("visual.json"));
 assert.ok(publicHtml.includes('src="./visual-runtime.js"'),"Public site must load visual renderer");
 assert.ok(!publicHtml.includes('localStorage.getItem("alankrita-portfolio")'),"Public site must not read local drafts");
