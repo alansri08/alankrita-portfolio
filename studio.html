@@ -54,7 +54,9 @@
         <b>Canva workflow</b>
         <p>Create or revise a design in Canva, export as PNG/WebP/SVG, then add it here as an image. Press Publish to include it in your live portfolio.</p>
         <p>Alternatively, add a <em>live Canva embed</em> for automatic Canva updates. Live embeds bypass review and GitHub rollback.</p>
-        <a href="https://www.canva.com/" target="_blank" rel="noopener noreferrer">Open Canva ↗</a>
+        <a href="https://www.canva.com/d/AewOY9n5nY1F8QW" target="_blank" rel="noopener noreferrer">Open your existing Canva portfolio copy ↗</a>
+        <p class="muted">Imported copies may contain flattened elements. Use Canva for graphics, then replace and publish here.</p>
+        <a href="https://www.canva.com/" target="_blank" rel="noopener noreferrer">Open Canva home ↗</a>
       </div>
       <div class="help"><b>Keyboard shortcuts</b><p>Drag to move · Corner handle to resize · Delete to remove · Ctrl/Cmd+D to duplicate · Arrow keys to nudge · Ctrl/Cmd+Z to undo</p></div>
     </section>
@@ -131,6 +133,10 @@
           <label>Width (px)<input data-key="w" type="number" min="0" step="1"></label><label>Height (px)<input data-key="h" type="number" min="0" step="1"></label>
         </div>
       </div>
+      <div class="insert-grid" id="layer-controls" style="margin-top:12px">
+        <button id="bring-front" style="min-height:38px">Bring to front</button>
+        <button id="send-back" style="min-height:38px">Send behind</button>
+      </div>
       <button id="replace-image" hidden style="width:100%;margin-top:12px">Replace selected image (Canva export or upload)</button>
       <input id="replace-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
       <a id="open-canva-edit" target="_blank" rel="noopener noreferrer" hidden style="display:block;margin-top:10px">Open original design in Canva ↗</a>
@@ -138,6 +144,7 @@
       <div class="two-col">
         <label>Font size (px)<input data-key="fontSize" type="number" min="0" max="300"></label>
         <label>Rotation (°)<input data-key="rotate" type="number" min="-360" max="360"></label>
+        <label>Layer order<input data-key="z" type="number" step="1"></label>
         <label>Text color<input data-key="color" type="color" value="#203e31"></label>
         <label>Background<input data-key="bg" type="color" value="#ffffff"></label>
         <label>Opacity (0–1)<input data-key="opacity" type="number" step=".1" min="0" max="1"></label>
