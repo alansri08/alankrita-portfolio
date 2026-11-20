@@ -20,3 +20,16 @@ jobs:
           node --check visual-runtime.js
       - name: Verify files and workflows
         run: node tests/smoke.mjs
+  browser-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+      - name: Browser editor workflow acceptance test
+        run: node tests/browser.mjs
