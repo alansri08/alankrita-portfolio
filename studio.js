@@ -310,6 +310,11 @@ function updateInspector(){
   const item=selection.kind==="item"?getItem():null;
   $("#selected-name").textContent=item?(item.text?.slice(0,40)||item.alt||item.type):"Website element";
   $("#item-properties").hidden=!item;$("#native-properties").hidden=!!item;
+  $("#native-text-row").hidden=!!item || !el || el.children.length>0;
+  if(!item && el && el.children.length===0) {
+    $("#native-text").value=Object.prototype.hasOwnProperty.call(visual.textOverrides||{},selection.id) ?
+      visual.textOverrides[selection.id] : el.textContent;
+  }
   for(const row of $$(".prop-row[data-prop]")){
     const key=row.dataset.prop;
     row.hidden=!item || (key==="text" && item.type!=="text")
@@ -371,7 +376,10 @@ function remove(){
   if(!selection)return;
   checkpoint();
   if(selection.kind==="item")visual.items=visual.items.filter(x=>String(x.id)!==selection.id);
-  else delete visual.placements?.[device]?.[selection.id];
+  else {
+    delete visual.placements?.[device]?.[selection.id];
+    if(visual.textOverrides) delete visual.textOverrides[selection.id];
+  }
   selection=null;updatePreview();updateInspector();refreshLayers();outline.hidden=true;markDirty();
 }
 function onKeydown(e){
@@ -444,6 +452,25 @@ async function publish(){
     saveDraft();
   }finally{busy=false;$("#publish").disabled=false;}
 }
+async function showHistory(){
+  try{
+    const commits=await api(repoApi("/commits?per_page=15"));
+    const options=commits.map((c,i)=>(i+1)+". "+c.sha.slice(0,7)+" · "+String(c.commit?.message||"Update").split("\\n")[0].slice(0,65)).join("\\n");
+    const chosen=prompt("Select an earlier version to preview (enter its number). Changes are NOT published until you click Publish.\\n\\n"+options);
+    if(!chosen)return;
+    const n=Number(chosen);
+    if(!Number.isInteger(n)||n<1||n>commits.length)throw Error("Invalid version number.");
+    const sha=commits[n-1].sha;
+    const [pastData,pastVisual]=await Promise.all([
+      api(repoApi("/contents/data.json?ref="+sha)),
+      api(repoApi("/contents/visual.json?ref="+sha))
+    ]);
+    checkpoint();
+    data=JSON.parse(decode64(pastData.content));visual=JSON.parse(decode64(pastVisual.content));
+    selection=null;updatePreview();updateInspector();refreshLayers();loadContentInput();markDirty();
+    flash("Old version loaded as a DRAFT. Review the preview, then click Publish to restore it.");
+  }catch(e){flash("History: "+e.message,true);}
+}
 function initialize(){
   $("#connect").addEventListener("click",connect);
   $("#token").addEventListener("keydown",e=>{if(e.key==="Enter")connect();});
@@ -451,6 +478,7 @@ function initialize(){
   $("#undo").addEventListener("click",doUndo);$("#redo").addEventListener("click",doRedo);
   $("#publish").addEventListener("click",publish);
   $("#save-draft").addEventListener("click",()=>{saveDraft();flash("Draft saved in this browser. It is not public.");});
+  $("#history").addEventListener("click",showHistory);
   $("#restore").addEventListener("click",async()=>{if(!confirm("Discard the current draft and reload the published website?"))return;
     localStorage.removeItem(KEY);try{await loadFromGithub(false);flash("Published version loaded.");}catch(e){flash(e.message,true);}
   });
@@ -471,6 +499,12 @@ function initialize(){
   $("#inspector").addEventListener("input",onPropertyInput);
   $("#duplicate").addEventListener("click",duplicate);
   $("#remove").addEventListener("click",remove);
+  $("#native-text").addEventListener("input",e=>{
+    if(selection?.kind!=="native")return;
+    checkpoint();visual.textOverrides ||= {};
+    visual.textOverrides[selection.id]=e.target.value;
+    updatePreview();markDirty();
+  });
   $("#resize-handle").addEventListener("pointerdown",startResize);
   $("#desktop").addEventListener("click",()=>setDevice("desktop"));
   $("#mobile").addEventListener("click",()=>setDevice("mobile"));
