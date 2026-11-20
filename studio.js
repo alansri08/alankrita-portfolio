@@ -230,6 +230,8 @@ function round(v){return Math.round(v*10)/10;}
 function startResize(e){
   if(!selection)return;
   e.preventDefault();e.stopPropagation();
+  // Capture movement on the resize handle even when the cursor crosses the iframe.
+  e.currentTarget.setPointerCapture(e.pointerId);
   checkpoint();
   const r=outline.getBoundingClientRect();
   drag={kind:"resize",x:e.clientX,y:e.clientY,initial:copy(selection.kind==="item"?itemDims(getItem()):placement()),rect:{w:r.width,h:r.height},changed:false};
