@@ -1,7 +1,7 @@
 /* Portfolio Visual Runtime v2 — public rendering only. No credentials or editing UI. */
 (() => {
   "use strict";
-  const defaults = {version:1,items:[],placements:{desktop:{},mobile:{}}};
+  const defaults = {version:1,items:[],placements:{desktop:{},mobile:{}},textOverrides:{}};
   const clone = x => JSON.parse(JSON.stringify(x));
   const root = document.querySelector(".shell");
   if (!root) return;
@@ -66,6 +66,20 @@
       const id = ident(el);
       el.dataset.visualId = id;
       const p = (isMobile() && mobile[id]) || desktop[id];
+      // Leaf text can be edited visually without destroying nested project card markup.
+      if (!el.children.length) {
+        const override = state.textOverrides && Object.prototype.hasOwnProperty.call(state.textOverrides,id) ? state.textOverrides[id] : undefined;
+        if (!el.dataset.visualTextApplied || (override !== undefined && el.textContent !== String(override))) {
+          el.dataset.visualOriginalText = el.textContent;
+        }
+        if (override !== undefined) {
+          el.textContent = String(override);
+          el.dataset.visualTextApplied = "1";
+        } else if (el.dataset.visualTextApplied) {
+          el.textContent = el.dataset.visualOriginalText ?? el.textContent;
+          delete el.dataset.visualTextApplied;
+        }
+      }
       const old = el.dataset.visualApplied;
       if (old) {
         el.style.transform = "";
@@ -148,7 +162,7 @@
   }
   function apply(next) {
     state = Object.assign(clone(defaults),clone(next || {}));
-    state.placements = state.placements || clone(defaults.placements);
+    state.placements = state.placements || clone(defaults.placements);state.textOverrides = state.textOverrides || {};
     draw();
   }
   const api = {
