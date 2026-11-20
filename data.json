@@ -6,9 +6,9 @@
   "email": "",
   "linkedin": "https://www.linkedin.com/",
   "github": "https://github.com/alansri08",
-  "headingFont": "Space Grotesk",
-  "bodyFont": "DM Sans",
-  "accentFont": "Space Grotesk",
+  "headingFont": "Fraunces",
+  "bodyFont": "Quicksand",
+  "accentFont": "Pacifico",
   "storyVideo": "",
   "projects": [
     {
@@ -35,5 +35,8 @@
       "video": "",
       "link": "https://github.com/alansri08/mobile-app-growth-experimentation"
     }
-  ]
+  ],
+  "headingColor": "#204d38",
+  "bodyColor": "#203e31",
+  "accentColor": "#387a54"
 }
