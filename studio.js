@@ -89,7 +89,11 @@ async function loadFromGithub(restore=true){
       const draft=JSON.parse(local);
       if(draft && draft.data && draft.visual && confirm("Restore your saved local draft? Cancel loads the published version.")) {
         data=draft.data;visual=draft.visual;
-        if(draft.headSha!==headSha)flash("Draft restored, but main changed since it was saved. Publishing will require reviewing changes.",true);
+        if(draft.headSha!==headSha){
+          // Keep the draft's original base SHA so publishing fails safely instead of overwriting newer CMS edits.
+          headSha=draft.headSha;
+          flash("Draft restored from an older GitHub version. Publishing is blocked until you reconcile it with the latest site.",true);
+        }
       }
     }catch{localStorage.removeItem(KEY);}
   }
